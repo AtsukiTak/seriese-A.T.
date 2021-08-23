@@ -3,4 +3,5 @@
 members = [
   "at-x64",
   "at-mac",
+  "at-obj",
 ]

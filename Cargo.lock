@@ -12,6 +12,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "at-obj"
+version = "0.1.0"
+dependencies = [
+ "at-mac",
+]
+
+[[package]]
 name = "at-x64"
 version = "0.1.0"
 dependencies = [

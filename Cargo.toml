@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+  "at-64",
+  "at-mo",
+]

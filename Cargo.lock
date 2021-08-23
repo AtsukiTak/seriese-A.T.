@@ -3,19 +3,19 @@
 version = 3
 
 [[package]]
-name = "at-64"
-version = "0.1.0"
-dependencies = [
- "byteorder",
-]
-
-[[package]]
-name = "at-mo"
+name = "at-mac"
 version = "0.1.0"
 dependencies = [
  "byteorder",
  "num-derive",
  "num-traits",
+]
+
+[[package]]
+name = "at-x64"
+version = "0.1.0"
+dependencies = [
+ "byteorder",
 ]
 
 [[package]]

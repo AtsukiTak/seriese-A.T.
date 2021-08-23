@@ -1,6 +1,6 @@
 [workspace]
 
 members = [
-  "at-64",
-  "at-mo",
+  "at-x64",
+  "at-mac",
 ]

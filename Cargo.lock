@@ -7,6 +7,7 @@ name = "at-asm"
 version = "0.1.0"
 dependencies = [
  "at-obj",
+ "at-x64",
 ]
 
 [[package]]

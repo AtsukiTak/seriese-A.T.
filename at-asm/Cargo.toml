@@ -7,3 +7,4 @@ edition = "2018"
 
 [dependencies]
 at-obj = { path = "../at-obj" }
+at-x64 = { path = "../at-x64" }

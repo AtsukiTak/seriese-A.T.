@@ -62,9 +62,9 @@ impl<const MAX: usize> From<u32> for BytesAtMost<MAX> {
 
 impl<const MAX: usize> From<u64> for BytesAtMost<MAX> {
     fn from(n: u64) -> Self {
-        assert!(MAX >= 4);
+        assert!(MAX >= 8);
 
-        let mut bytes = BytesAtMost::new(4);
+        let mut bytes = BytesAtMost::new(8);
         bytes.bytes_mut().write_u64::<LE>(n).unwrap();
         bytes
     }

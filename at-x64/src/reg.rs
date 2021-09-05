@@ -56,56 +56,51 @@ pub enum Reg64 {
 }
 
 impl Reg64 {
-    pub fn rex_r_bit(&self) -> bool {
+    pub fn register_code(&self) -> u8 {
+        use Reg64::*;
+
+        match self {
+            RAX | R8 => 0b000,
+            RCX | R9 => 0b001,
+            RDX | R10 => 0b010,
+            RBX | R11 => 0b011,
+            RSP | R12 => 0b100,
+            RBP | R13 => 0b101,
+            RSI | R14 => 0b110,
+            RDI | R15 => 0b111,
+        }
+    }
+
+    pub fn is_additional(&self) -> bool {
         use Reg64::*;
 
         match self {
             RAX | RCX | RDX | RBX | RSP | RBP | RSI | RDI => false,
             R8 | R9 | R10 | R11 | R12 | R13 | R14 | R15 => true,
         }
+    }
+
+    pub fn rex_r_bit(&self) -> bool {
+        self.is_additional()
     }
 
     pub fn rex_b_bit(&self) -> bool {
-        use Reg64::*;
-
-        match self {
-            RAX | RCX | RDX | RBX | RSP | RBP | RSI | RDI => false,
-            R8 | R9 | R10 | R11 | R12 | R13 | R14 | R15 => true,
-        }
+        self.is_additional()
     }
 
+    /// mode bits of ModR/M field (2bit)
     pub fn mode_bits(&self) -> u8 {
         0b11
     }
 
+    /// reg bits of ModR/M field (3bit)
     pub fn reg_bits(&self) -> u8 {
-        use Reg64::*;
-
-        match self {
-            RAX | R8 => 0b000,
-            RCX | R9 => 0b001,
-            RDX | R10 => 0b010,
-            RBX | R11 => 0b011,
-            RSP | R12 => 0b100,
-            RBP | R13 => 0b101,
-            RSI | R14 => 0b110,
-            RDI | R15 => 0b111,
-        }
+        self.register_code()
     }
 
+    /// rm bits of ModR/M field (3bit)
     pub fn rm_bits(&self) -> u8 {
-        use Reg64::*;
-
-        match self {
-            RAX | R8 => 0b000,
-            RCX | R9 => 0b001,
-            RDX | R10 => 0b010,
-            RBX | R11 => 0b011,
-            RSP | R12 => 0b100,
-            RBP | R13 => 0b101,
-            RSI | R14 => 0b110,
-            RDI | R15 => 0b111,
-        }
+        self.register_code()
     }
 }
 
@@ -166,6 +161,38 @@ pub enum Reg32 {
     R14D,
     /// Lower 32-bits of R15 Register
     R15D,
+}
+
+impl Reg32 {
+    pub fn to_reg64(self) -> Reg64 {
+        match self {
+            Reg32::EAX => Reg64::RAX,
+            Reg32::EDI => Reg64::RDI,
+            Reg32::ESI => Reg64::RSI,
+            Reg32::EDX => Reg64::RDX,
+            Reg32::ECX => Reg64::RCX,
+            Reg32::EBP => Reg64::RBP,
+            Reg32::ESP => Reg64::RSP,
+            Reg32::EBX => Reg64::RBX,
+            Reg32::R8D => Reg64::R8,
+            Reg32::R9D => Reg64::R9,
+            Reg32::R10D => Reg64::R10,
+            Reg32::R11D => Reg64::R11,
+            Reg32::R12D => Reg64::R12,
+            Reg32::R13D => Reg64::R13,
+            Reg32::R14D => Reg64::R14,
+            Reg32::R15D => Reg64::R15,
+        }
+    }
+
+    pub fn register_code(&self) -> u8 {
+        self.to_reg64().register_code()
+    }
+
+    /// true if it is added at x64
+    pub fn is_additional(&self) -> bool {
+        self.to_reg64().is_additional()
+    }
 }
 
 impl Display for Reg32 {

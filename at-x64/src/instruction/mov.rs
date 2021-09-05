@@ -1,6 +1,15 @@
-use crate::{ByteCode, BytesAtMost, Mem64, ModRM, Reg64, Rex};
+use crate::{
+    reg::{Reg32, Reg64},
+    ByteCode, BytesAtMost, Mem64, ModRM, Rex,
+};
 
 pub struct Mov<Dst, Src>(pub Dst, pub Src);
+
+impl<Dst, Src> Mov<Dst, Src> {
+    pub fn new(dst: Dst, src: Src) -> Self {
+        Mov(dst, src)
+    }
+}
 
 impl Mov<Mem64, Reg64> {
     pub fn bytecode(&self) -> ByteCode {
@@ -64,7 +73,7 @@ impl Mov<Reg64, Reg64> {
     }
 }
 
-impl Mov<Reg64, u64> {
+impl Mov<Reg32, u32> {
     pub fn bytecode(&self) -> ByteCode {
         let (dst, src) = (self.0, self.1);
 
@@ -72,12 +81,11 @@ impl Mov<Reg64, u64> {
 
         // REX prefix
         let mut rex = Rex::new();
-        rex.set_w(true);
-        rex.set_b(dst.rex_b_bit());
+        rex.set_b(dst.is_additional());
         code.rex = Some(rex);
 
         // opcode
-        code.opcode = BytesAtMost::from([0xB8 + dst.reg_bits()]);
+        code.opcode = BytesAtMost::from([0xB8 + dst.register_code()]);
 
         // immutable val
         code.imm = BytesAtMost::from(src);

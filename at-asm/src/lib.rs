@@ -2,7 +2,10 @@ pub mod reader;
 
 use crate::reader::Reader;
 use at_obj::{macho, Object, Symbol};
-use at_x64::instruction::Ret;
+use at_x64::{
+    instruction::{Mov, Ret},
+    reg::Reg32::*,
+};
 use std::io::{Read, Write};
 
 pub fn assemble<R: Read, W: Write>(read: &mut R, write: &mut W) {
@@ -22,16 +25,17 @@ pub fn assemble<R: Read, W: Write>(read: &mut R, write: &mut W) {
 }
 
 fn parse_line(line: &str, obj: &mut Object) {
+    let section_bytes = &mut obj.sections.text.bytes;
+
     match line {
         "ret\n" => {
             let bytes = Ret::new().bytecode().to_bytes();
-            obj.sections.text.bytes.extend_from_slice(bytes.bytes());
+            section_bytes.extend_from_slice(bytes.bytes());
         }
-        "mov ax, 42\n" => obj
-            .sections
-            .text
-            .bytes
-            .extend_from_slice(&[0x66, 0xb8, 0x2a, 0x00]),
+        "mov ax, 42\n" => {
+            let bytes = Mov::new(EAX, 42).bytecode().to_bytes();
+            section_bytes.extend_from_slice(bytes.bytes());
+        }
         _ => panic!("unrecognized line: {}", line),
     }
 }

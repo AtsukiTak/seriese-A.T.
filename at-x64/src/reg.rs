@@ -71,7 +71,7 @@ impl Reg64 {
         }
     }
 
-    pub fn is_additional(&self) -> bool {
+    pub fn is_extended(&self) -> bool {
         use Reg64::*;
 
         match self {
@@ -81,11 +81,11 @@ impl Reg64 {
     }
 
     pub fn rex_r_bit(&self) -> bool {
-        self.is_additional()
+        self.is_extended()
     }
 
     pub fn rex_b_bit(&self) -> bool {
-        self.is_additional()
+        self.is_extended()
     }
 
     /// mode bits of ModR/M field (2bit)
@@ -190,8 +190,8 @@ impl Reg32 {
     }
 
     /// true if it is added at x64
-    pub fn is_additional(&self) -> bool {
-        self.to_reg64().is_additional()
+    pub fn is_extended(&self) -> bool {
+        self.to_reg64().is_extended()
     }
 }
 

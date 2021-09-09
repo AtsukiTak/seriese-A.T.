@@ -9,7 +9,8 @@ pub struct ByteCode {
     pub mod_rm: Option<ModRM>,     // 0 ~ 1 byte
     pub sib: Option<Sib>,          // 0 ~ 1 byte
     pub addr_disp: BytesAtMost<4>, // 0 ~ 4 byte
-    pub imm: BytesAtMost<4>,       // 0 ~ 4 byte
+    // is able to take 8 bytes only when "mov reg64, imm64" instruction.
+    pub imm: BytesAtMost<8>, // 0 ~ 4(8) byte
 }
 
 impl ByteCode {

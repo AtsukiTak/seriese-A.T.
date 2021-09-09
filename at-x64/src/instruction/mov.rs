@@ -1,6 +1,7 @@
 use crate::{
+    encoder::Encoder,
     reg::{Reg32, Reg64},
-    ByteCode, BytesAtMost, Mem64, ModRM, Rex,
+    ByteCode, BytesAtMost, Mem64,
 };
 
 pub struct Mov<Dst, Src>(pub Dst, pub Src);
@@ -15,33 +16,11 @@ impl Mov<Mem64, Reg64> {
     pub fn bytecode(&self) -> ByteCode {
         let (dst, src) = (self.0, self.1);
 
-        let mut code = ByteCode::new();
-
-        // REX prefix
-        let mut rex = Rex::new();
-        rex.set_w(true);
-        rex.set_r(src.rex_r_bit());
-        rex.set_x(dst.rex_x_bit());
-        rex.set_b(dst.rex_b_bit());
-        code.rex = Some(rex);
-
-        // opcode
-        code.opcode = BytesAtMost::from([0x89]);
-
-        // ModR/M
-        let mut mod_rm = ModRM::new();
-        mod_rm.set_mode(dst.mode_bits());
-        mod_rm.set_reg(src.reg_bits());
-        mod_rm.set_rm(dst.rm_bits());
-        code.mod_rm = Some(mod_rm);
-
-        // SIB
-        code.sib = dst.sib_byte();
-
-        // addr disp
-        code.addr_disp = dst.disp_bytes();
-
-        code
+        Encoder::new()
+            .rex_w(true)
+            .opcode(BytesAtMost::from([0x89]))
+            .mod_rm(src, dst)
+            .encode()
     }
 }
 
@@ -49,27 +28,11 @@ impl Mov<Reg64, Reg64> {
     pub fn bytecode(&self) -> ByteCode {
         let (dst, src) = (self.0, self.1);
 
-        let mut code = ByteCode::new();
-
-        // set REX prefix
-        let mut rex = Rex::new();
-        rex.set_w(true);
-        rex.set_r(src.rex_r_bit());
-        rex.set_x(false);
-        rex.set_b(dst.rex_b_bit());
-        code.rex = Some(rex);
-
-        // set opcode
-        code.opcode = BytesAtMost::from([0x89]);
-
-        // set ModR/M
-        let mut mod_rm = ModRM::new();
-        mod_rm.set_mode(dst.mode_bits());
-        mod_rm.set_reg(src.reg_bits());
-        mod_rm.set_rm(dst.rm_bits());
-        code.mod_rm = Some(mod_rm);
-
-        code
+        Encoder::new()
+            .rex_w(true)
+            .opcode(BytesAtMost::from([0x89]))
+            .mod_rm(src, dst)
+            .encode()
     }
 }
 
@@ -77,20 +40,10 @@ impl Mov<Reg32, u32> {
     pub fn bytecode(&self) -> ByteCode {
         let (dst, src) = (self.0, self.1);
 
-        let mut code = ByteCode::new();
-
-        // REX prefix
-        let mut rex = Rex::new();
-        rex.set_b(dst.is_additional());
-        code.rex = Some(rex);
-
-        // opcode
-        code.opcode = BytesAtMost::from([0xB8 + dst.register_code()]);
-
-        // immutable val
-        code.imm = BytesAtMost::from(src);
-
-        code
+        Encoder::new()
+            .opcode(BytesAtMost::from([0xB8 + dst.register_code()]))
+            .imm(BytesAtMost::from(src))
+            .encode()
     }
 }
 

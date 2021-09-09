@@ -1,5 +1,6 @@
 pub mod bytecode;
 mod bytes;
+mod encoder;
 pub mod instruction;
 pub mod mem;
 pub mod reg;

@@ -78,17 +78,8 @@ impl Rex {
         Rex(0b0100_0000)
     }
 
-    pub fn from_raw(raw: u8) -> Self {
-        assert!(raw & 0b1111_0000 == 0b0100_0000);
-        Rex(raw)
-    }
-
     pub fn byte(&self) -> u8 {
         self.0
-    }
-
-    pub fn w(&self) -> bool {
-        (self.0 & 0b0000_1000) != 0
     }
 
     pub fn set_w(&mut self, flag: bool) {
@@ -99,10 +90,6 @@ impl Rex {
         }
     }
 
-    pub fn r(&self) -> bool {
-        (self.0 & 0b0000_0100) != 0
-    }
-
     pub fn set_r(&mut self, flag: bool) {
         if flag {
             self.0 |= 0b0000_0100;
@@ -111,20 +98,12 @@ impl Rex {
         }
     }
 
-    pub fn x(&self) -> bool {
-        (self.0 & 0b0000_0010) != 0
-    }
-
     pub fn set_x(&mut self, flag: bool) {
         if flag {
             self.0 |= 0b0000_0010;
         } else {
             self.0 &= 0b1111_1101;
         }
-    }
-
-    pub fn b(&self) -> bool {
-        (self.0 & 0b0000_0001) != 0
     }
 
     pub fn set_b(&mut self, flag: bool) {
@@ -143,16 +122,8 @@ impl ModRM {
         ModRM(0)
     }
 
-    pub fn from_raw(raw: u8) -> Self {
-        ModRM(raw)
-    }
-
     pub fn byte(&self) -> u8 {
         self.0
-    }
-
-    pub fn mode(&self) -> u8 {
-        self.0 >> 6
     }
 
     /// mode is 2 bits.
@@ -161,18 +132,10 @@ impl ModRM {
         self.0 = (self.0 & 0b00_111_111) + (mode << 6);
     }
 
-    pub fn reg(&self) -> u8 {
-        (self.0 & 0b00_111_000) >> 3
-    }
-
     /// reg is 3 bits.
     pub fn set_reg(&mut self, reg: u8) {
         assert!(reg <= 0b111);
         self.0 = (self.0 & 0b11_000_111) + (reg << 3);
-    }
-
-    pub fn rm(&self) -> u8 {
-        self.0 & 0b00000111
     }
 
     /// rm is 3 bits.
@@ -193,23 +156,7 @@ impl Sib {
         Sib(scale << 6 | index << 3 | base)
     }
 
-    pub fn from_raw(raw: u8) -> Self {
-        Sib(raw)
-    }
-
     pub fn byte(&self) -> u8 {
         self.0
-    }
-
-    pub fn scale(&self) -> u8 {
-        self.0 >> 6
-    }
-
-    pub fn index(&self) -> u8 {
-        (self.0 & 0b00111000) >> 3
-    }
-
-    pub fn base(&self) -> u8 {
-        self.0 & 0b00000111
     }
 }

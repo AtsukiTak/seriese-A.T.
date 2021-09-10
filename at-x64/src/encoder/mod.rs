@@ -1,9 +1,11 @@
+mod bytecode;
+
 use crate::{
-    bytecode::{ByteCode, ModRM, Rex, Sib},
     mem::Mem64,
     reg::{Reg32, Reg64},
     BytesAtMost,
 };
+use bytecode::{ByteCode, ModRM, Rex, Sib};
 
 pub struct Encoder<R, RM> {
     rex_w: bool,
@@ -48,7 +50,7 @@ impl<R: RegLike, RM: RegMemLike> Encoder<R, RM> {
         self
     }
 
-    pub fn encode(self) -> ByteCode {
+    pub fn encode(self) -> BytesAtMost<15> {
         let mut bytecode = ByteCode::new();
 
         // opcode
@@ -90,7 +92,7 @@ impl<R: RegLike, RM: RegMemLike> Encoder<R, RM> {
         }
         bytecode.imm = self.imm;
 
-        bytecode
+        bytecode.to_bytes()
     }
 }
 

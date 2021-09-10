@@ -1,4 +1,4 @@
-use crate::{ByteCode, BytesAtMost, Mem64, ModRM, Reg64, Rex};
+use crate::{BytesAtMost, Encoder, Mem64, Reg64};
 
 pub struct Lea<Dst, Src>(Dst, Src);
 
@@ -7,36 +7,14 @@ impl Lea<Reg64, Mem64> {
         Lea(dst, src)
     }
 
-    pub fn bytecode(&self) -> ByteCode {
-        let (dst, src) = (self.0, self.1);
+    pub fn bytecode(&self) -> BytesAtMost<15> {
+        let (dst_reg, src_mem) = (self.0, self.1);
 
-        let mut code = ByteCode::new();
-
-        // REX prefix
-        let mut rex = Rex::new();
-        rex.set_w(true);
-        rex.set_r(dst.rex_r_bit());
-        rex.set_x(src.rex_x_bit());
-        rex.set_b(src.rex_b_bit());
-        code.rex = Some(rex);
-
-        // opcode
-        code.opcode = BytesAtMost::from([0x8D]);
-
-        // ModR/M
-        let mut mod_rm = ModRM::new();
-        mod_rm.set_mode(src.mode_bits());
-        mod_rm.set_reg(dst.reg_bits());
-        mod_rm.set_rm(src.rm_bits());
-        code.mod_rm = Some(mod_rm);
-
-        // SIB
-        code.sib = src.sib_byte();
-
-        // addr disp
-        code.addr_disp = src.disp_bytes();
-
-        code
+        Encoder::new()
+            .rex_w(true)
+            .opcode(BytesAtMost::from([0x8D]))
+            .mod_rm(dst_reg, src_mem)
+            .encode()
     }
 }
 
@@ -71,7 +49,7 @@ mod test {
         ];
 
         for (origin, expected) in cases {
-            assert_eq!(origin.bytecode().to_bytes().bytes(), expected);
+            assert_eq!(origin.bytecode().bytes(), expected);
         }
     }
 }

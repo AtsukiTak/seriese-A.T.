@@ -1,7 +1,7 @@
 use crate::{
     encoder::Encoder,
     reg::{Reg32, Reg64},
-    ByteCode, BytesAtMost, Mem64,
+    BytesAtMost, Mem64,
 };
 
 pub struct Mov<Dst, Src>(pub Dst, pub Src);
@@ -13,7 +13,7 @@ impl<Dst, Src> Mov<Dst, Src> {
 }
 
 impl Mov<Mem64, Reg64> {
-    pub fn bytecode(&self) -> ByteCode {
+    pub fn bytecode(&self) -> BytesAtMost<15> {
         let (dst, src) = (self.0, self.1);
 
         Encoder::new()
@@ -25,7 +25,7 @@ impl Mov<Mem64, Reg64> {
 }
 
 impl Mov<Reg64, Reg64> {
-    pub fn bytecode(&self) -> ByteCode {
+    pub fn bytecode(&self) -> BytesAtMost<15> {
         let (dst, src) = (self.0, self.1);
 
         Encoder::new()
@@ -37,7 +37,7 @@ impl Mov<Reg64, Reg64> {
 }
 
 impl Mov<Reg32, u32> {
-    pub fn bytecode(&self) -> ByteCode {
+    pub fn bytecode(&self) -> BytesAtMost<15> {
         let (dst, src) = (self.0, self.1);
 
         Encoder::new()
@@ -72,7 +72,7 @@ mod test {
         ];
 
         for (origin, expected) in cases {
-            assert_eq!(origin.bytecode().to_bytes().bytes(), expected);
+            assert_eq!(origin.bytecode().bytes(), expected);
         }
     }
 }

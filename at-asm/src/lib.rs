@@ -29,11 +29,11 @@ fn parse_line(line: &str, obj: &mut Object) {
 
     match line {
         "ret\n" => {
-            let bytes = Ret::new().bytecode().to_bytes();
+            let bytes = Ret::new().bytecode();
             section_bytes.extend_from_slice(bytes.bytes());
         }
         "mov ax, 42\n" => {
-            let bytes = Mov::new(EAX, 42).bytecode().to_bytes();
+            let bytes = Mov::new(EAX, 42).bytecode();
             section_bytes.extend_from_slice(bytes.bytes());
         }
         _ => panic!("unrecognized line: {}", line),

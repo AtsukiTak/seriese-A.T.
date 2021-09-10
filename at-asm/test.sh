@@ -23,5 +23,5 @@ assert_exit_code() {
 
 cargo build
 
-assert_exit_code "tests/minimum.s" 42
+assert_exit_code "tests/minimum.s" 24
 assert_exit_code "tests/many_mov.s" 42

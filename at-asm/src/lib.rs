@@ -1,10 +1,11 @@
+mod parse_num;
 pub mod reader;
 
 use crate::reader::Reader;
 use at_obj::{macho, Object, Symbol};
 use at_x64::{
     instruction::{Mov, Ret},
-    reg::Reg32::*,
+    reg::Reg32,
 };
 use std::io::{Read, Write};
 
@@ -27,13 +28,23 @@ pub fn assemble<R: Read, W: Write>(read: &mut R, write: &mut W) {
 fn parse_line(line: &str, obj: &mut Object) {
     let section_bytes = &mut obj.sections.text.bytes;
 
-    match line {
-        "ret\n" => {
+    let mut tokens = line.split_whitespace();
+
+    match tokens.next() {
+        Some("ret") => {
             let bytes = Ret::new().bytecode();
             section_bytes.extend_from_slice(bytes.bytes());
         }
-        "mov ax, 42\n" => {
-            let bytes = Mov::new(EAX, 42).bytecode();
+        Some("mov") => {
+            let reg = match tokens.next().unwrap() {
+                "ax," => Reg32::EAX,
+                _ => todo!(),
+            };
+            let num = {
+                let s = tokens.next().unwrap();
+                parse_num::parse_num(s) as u32
+            };
+            let bytes = Mov::new(reg, num).bytecode();
             section_bytes.extend_from_slice(bytes.bytes());
         }
         _ => panic!("unrecognized line: {}", line),

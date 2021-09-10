@@ -47,6 +47,18 @@ impl Mov<Reg32, u32> {
     }
 }
 
+impl Mov<Reg64, u64> {
+    pub fn bytecode(&self) -> BytesAtMost<15> {
+        let (dst_reg, src_imm) = (self.0, self.1);
+
+        Encoder::new()
+            .rex_w(true)
+            .opcode(BytesAtMost::from([0xB8 + dst_reg.register_code()]))
+            .imm(BytesAtMost::from(src_imm))
+            .encode()
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

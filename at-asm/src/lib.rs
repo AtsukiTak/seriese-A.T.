@@ -1,4 +1,4 @@
-mod parse_num;
+mod parsers;
 pub mod reader;
 
 use crate::reader::Reader;
@@ -42,7 +42,7 @@ fn parse_line(line: &str, obj: &mut Object) {
             };
             let num = {
                 let s = tokens.next().unwrap();
-                parse_num::parse_num(s) as u32
+                parsers::parse::<u64>(s) as u32
             };
             let bytes = Mov::new(reg, num).bytecode();
             section_bytes.extend_from_slice(bytes.bytes());

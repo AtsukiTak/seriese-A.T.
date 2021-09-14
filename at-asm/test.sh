@@ -7,6 +7,12 @@ assert_exit_code() {
   echo "Assemble ${asmfile}..."
 
   cat $asmfile | ../target/debug/at-asm > tmp.o
+  asm_exit="$?"
+  if [ "$asm_exit" -ne 0 ]; then
+    echo "Failed to assemble. Exit test."
+    exit $asm_exit
+  fi
+
   ld -lSystem -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib tmp.o
   ./a.out
   code="$?"

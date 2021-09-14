@@ -1,2 +1,2 @@
-mov ax, 24
+mov eax, 24
 ret

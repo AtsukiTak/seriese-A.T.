@@ -254,6 +254,38 @@ pub enum Reg16 {
     R15W,
 }
 
+impl Reg16 {
+    pub fn to_reg32(self) -> Reg32 {
+        match self {
+            Reg16::AX => Reg32::EAX,
+            Reg16::DI => Reg32::EDI,
+            Reg16::SI => Reg32::ESI,
+            Reg16::DX => Reg32::EDX,
+            Reg16::CX => Reg32::ECX,
+            Reg16::BP => Reg32::EBP,
+            Reg16::SP => Reg32::ESP,
+            Reg16::BX => Reg32::EBX,
+            Reg16::R8W => Reg32::R8D,
+            Reg16::R9W => Reg32::R9D,
+            Reg16::R10W => Reg32::R10D,
+            Reg16::R11W => Reg32::R11D,
+            Reg16::R12W => Reg32::R12D,
+            Reg16::R13W => Reg32::R13D,
+            Reg16::R14W => Reg32::R14D,
+            Reg16::R15W => Reg32::R15D,
+        }
+    }
+
+    pub fn register_code(&self) -> u8 {
+        self.to_reg32().register_code()
+    }
+
+    /// true if it is added at x64
+    pub fn is_extended(&self) -> bool {
+        self.to_reg32().is_extended()
+    }
+}
+
 impl Display for Reg16 {
     fn fmt(&self, f: &mut Formatter) -> Result<(), FmtError> {
         match self {

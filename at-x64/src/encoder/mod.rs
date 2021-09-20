@@ -8,6 +8,7 @@ use crate::{
 use bytecode::{ByteCode, ModRM, Rex, Sib};
 
 pub struct Encoder<R, RM> {
+    prefix: Option<u8>,
     rex_w: bool,
     opcode: BytesAtMost<3>,
     mod_rm: Option<(R, RM)>,
@@ -17,6 +18,7 @@ pub struct Encoder<R, RM> {
 impl Encoder<Reg64, Mem64> {
     pub fn new() -> Self {
         Encoder {
+            prefix: None,
             rex_w: false,
             opcode: BytesAtMost::with_len(0),
             mod_rm: None,
@@ -26,6 +28,11 @@ impl Encoder<Reg64, Mem64> {
 }
 
 impl<R: RegLike, RM: RegMemLike> Encoder<R, RM> {
+    pub fn prefix(mut self, prefix: u8) -> Self {
+        self.prefix = Some(prefix);
+        self
+    }
+
     pub fn rex_w(mut self, rex_w: bool) -> Self {
         self.rex_w = rex_w;
         self
@@ -38,6 +45,7 @@ impl<R: RegLike, RM: RegMemLike> Encoder<R, RM> {
 
     pub fn mod_rm<R2, RM2>(self, reg: R2, rm: RM2) -> Encoder<R2, RM2> {
         Encoder {
+            prefix: self.prefix,
             rex_w: self.rex_w,
             opcode: self.opcode,
             mod_rm: Some((reg, rm)),

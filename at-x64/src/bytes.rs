@@ -50,6 +50,16 @@ impl<const MAX: usize> From<u8> for BytesAtMost<MAX> {
     }
 }
 
+impl<const MAX: usize> From<u16> for BytesAtMost<MAX> {
+    fn from(n: u16) -> Self {
+        assert!(MAX >= 1);
+
+        let mut bytes = BytesAtMost::with_len(2);
+        bytes.bytes_mut().write_u16::<LE>(n).unwrap();
+        bytes
+    }
+}
+
 impl<const MAX: usize> From<u32> for BytesAtMost<MAX> {
     fn from(n: u32) -> Self {
         assert!(MAX >= 4);

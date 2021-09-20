@@ -1,6 +1,6 @@
 use crate::{
     encoder::Encoder,
-    reg::{Reg32, Reg64},
+    reg::{Reg16, Reg32, Reg64},
     BytesAtMost, Mem64,
 };
 
@@ -32,6 +32,18 @@ impl Mov<Reg64, Reg64> {
             .rex_w(true)
             .opcode(BytesAtMost::from([0x89]))
             .mod_rm(src, dst)
+            .encode()
+    }
+}
+
+impl Mov<Reg16, u16> {
+    pub fn bytecode(&self) -> BytesAtMost<15> {
+        let (dst_reg, src_imm) = (self.0, self.1);
+
+        Encoder::new()
+            .prefix(0x66)
+            .opcode(BytesAtMost::from([0xB0 + dst_reg.register_code()]))
+            .imm(BytesAtMost::from(src_imm))
             .encode()
     }
 }

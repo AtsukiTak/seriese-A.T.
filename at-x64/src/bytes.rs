@@ -6,7 +6,7 @@ pub struct BytesAtMost<const MAX: usize> {
 }
 
 impl<const MAX: usize> BytesAtMost<MAX> {
-    pub fn new(len: usize) -> Self {
+    pub fn with_len(len: usize) -> Self {
         assert!(len <= MAX);
 
         BytesAtMost {
@@ -36,7 +36,7 @@ impl<const N: usize, const MAX: usize> From<[u8; N]> for BytesAtMost<MAX> {
     fn from(array: [u8; N]) -> Self {
         assert!(N <= MAX);
 
-        let mut bytes = BytesAtMost::new(N);
+        let mut bytes = BytesAtMost::with_len(N);
         bytes.bytes_mut().copy_from_slice(&array[..]);
         bytes
     }
@@ -54,7 +54,7 @@ impl<const MAX: usize> From<u32> for BytesAtMost<MAX> {
     fn from(n: u32) -> Self {
         assert!(MAX >= 4);
 
-        let mut bytes = BytesAtMost::new(4);
+        let mut bytes = BytesAtMost::with_len(4);
         bytes.bytes_mut().write_u32::<LE>(n).unwrap();
         bytes
     }
@@ -64,7 +64,7 @@ impl<const MAX: usize> From<u64> for BytesAtMost<MAX> {
     fn from(n: u64) -> Self {
         assert!(MAX >= 8);
 
-        let mut bytes = BytesAtMost::new(8);
+        let mut bytes = BytesAtMost::with_len(8);
         bytes.bytes_mut().write_u64::<LE>(n).unwrap();
         bytes
     }

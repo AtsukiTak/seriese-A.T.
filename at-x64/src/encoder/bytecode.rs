@@ -18,11 +18,11 @@ impl ByteCode {
         ByteCode {
             prefix: None,
             rex: None,
-            opcode: BytesAtMost::new(1),
+            opcode: BytesAtMost::with_len(1),
             mod_rm: None,
             sib: None,
-            addr_disp: BytesAtMost::new(0),
-            imm: BytesAtMost::new(0),
+            addr_disp: BytesAtMost::with_len(0),
+            imm: BytesAtMost::with_len(0),
         }
     }
 
@@ -35,7 +35,7 @@ impl ByteCode {
             + self.addr_disp.len()
             + self.imm.len();
 
-        let mut bytes = BytesAtMost::new(len);
+        let mut bytes = BytesAtMost::with_len(len);
 
         let mut cursor = Cursor::new(bytes.bytes_mut());
 

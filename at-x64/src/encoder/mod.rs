@@ -18,9 +18,9 @@ impl Encoder<Reg64, Mem64> {
     pub fn new() -> Self {
         Encoder {
             rex_w: false,
-            opcode: BytesAtMost::new(0),
+            opcode: BytesAtMost::with_len(0),
             mod_rm: None,
-            imm: BytesAtMost::new(0),
+            imm: BytesAtMost::with_len(0),
         }
     }
 }
@@ -177,7 +177,7 @@ impl RegMemLike for Reg64 {
     }
 
     fn disp_bytes(&self) -> BytesAtMost<4> {
-        BytesAtMost::new(0)
+        BytesAtMost::with_len(0)
     }
 }
 
@@ -203,7 +203,7 @@ impl RegMemLike for Reg32 {
     }
 
     fn disp_bytes(&self) -> BytesAtMost<4> {
-        BytesAtMost::new(0)
+        BytesAtMost::with_len(0)
     }
 }
 
@@ -292,7 +292,7 @@ impl RegMemLike for Mem64 {
 
         match self {
             RegOffset(RBP | R13, 0) => BytesAtMost::from(0 as u8),
-            RegOffset(_, 0) => BytesAtMost::new(0),
+            RegOffset(_, 0) => BytesAtMost::with_len(0),
             RegOffset(_, disp @ 1..=256) => BytesAtMost::from(*disp as u8),
             RegOffset(_, disp) => BytesAtMost::from(*disp),
             RipOffset(disp) => BytesAtMost::from(*disp),
@@ -304,7 +304,7 @@ impl RegMemLike for Mem64 {
                 disp: 0,
                 ..
             } => BytesAtMost::from(0u8),
-            Sib { disp: 0, .. } => BytesAtMost::new(0),
+            Sib { disp: 0, .. } => BytesAtMost::with_len(0),
             Sib {
                 disp: disp @ 1..=256,
                 ..

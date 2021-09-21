@@ -42,7 +42,8 @@ impl Mov<Reg16, u16> {
 
         Encoder::new()
             .prefix(0x66)
-            .opcode(BytesAtMost::from([0xB0 + dst_reg.register_code()]))
+            .rex_b(dst_reg.is_extended())
+            .opcode(BytesAtMost::from([0xB8 + dst_reg.register_code()]))
             .imm(BytesAtMost::from(src_imm))
             .encode()
     }
@@ -50,11 +51,12 @@ impl Mov<Reg16, u16> {
 
 impl Mov<Reg32, u32> {
     pub fn bytecode(&self) -> BytesAtMost<15> {
-        let (dst, src) = (self.0, self.1);
+        let (dst_reg, src_imm) = (self.0, self.1);
 
         Encoder::new()
-            .opcode(BytesAtMost::from([0xB8 + dst.register_code()]))
-            .imm(BytesAtMost::from(src))
+            .rex_b(dst_reg.is_extended())
+            .opcode(BytesAtMost::from([0xB8 + dst_reg.register_code()]))
+            .imm(BytesAtMost::from(src_imm))
             .encode()
     }
 }
@@ -65,6 +67,7 @@ impl Mov<Reg64, u64> {
 
         Encoder::new()
             .rex_w(true)
+            .rex_b(dst_reg.is_extended())
             .opcode(BytesAtMost::from([0xB8 + dst_reg.register_code()]))
             .imm(BytesAtMost::from(src_imm))
             .encode()
@@ -92,6 +95,57 @@ mod test {
             (
                 Mov(Mem64::sib(Some(RBP), 42, RAX, 3), R13),
                 vec![0x4C, 0x89, 0x6C, 0xC5, 0x2A],
+            ),
+        ];
+
+        for (origin, expected) in cases {
+            assert_eq!(origin.bytecode().bytes(), expected);
+        }
+    }
+
+    #[test]
+    fn test_mov_reg16_imm16() {
+        use Reg16::*;
+
+        let cases = [
+            (Mov::new(AX, 42), vec![0x66, 0xB8, 0x2A, 0x00]),
+            (Mov::new(R9W, 11), vec![0x66, 0x41, 0xB9, 0x0B, 0x00]),
+        ];
+
+        for (origin, expected) in cases {
+            assert_eq!(origin.bytecode().bytes(), expected);
+        }
+    }
+
+    #[test]
+    fn test_mov_reg32_imm32() {
+        use Reg32::*;
+
+        let cases = [
+            (Mov::new(EDI, 420), vec![0xBF, 0xA4, 0x01, 0x00, 0x00]),
+            (
+                Mov::new(R15D, 109),
+                vec![0x41, 0xBF, 0x6D, 0x00, 0x00, 0x00],
+            ),
+        ];
+
+        for (origin, expected) in cases {
+            assert_eq!(origin.bytecode().bytes(), expected);
+        }
+    }
+
+    #[test]
+    fn test_mov_reg64_imm64() {
+        use Reg64::*;
+
+        let cases = [
+            (
+                Mov::new(RSP, 42),
+                vec![0x48, 0xBC, 0x2A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+            ),
+            (
+                Mov::new(R14, 42),
+                vec![0x49, 0xBE, 0x2A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
             ),
         ];
 

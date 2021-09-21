@@ -10,6 +10,7 @@ use bytecode::{ByteCode, ModRM, Rex, Sib};
 pub struct Encoder<R, RM> {
     prefix: Option<u8>,
     rex_w: bool,
+    rex_b: bool,
     opcode: BytesAtMost<3>,
     mod_rm: Option<(R, RM)>,
     imm: BytesAtMost<8>,
@@ -20,6 +21,7 @@ impl Encoder<Reg64, Mem64> {
         Encoder {
             prefix: None,
             rex_w: false,
+            rex_b: false,
             opcode: BytesAtMost::with_len(0),
             mod_rm: None,
             imm: BytesAtMost::with_len(0),
@@ -38,6 +40,21 @@ impl<R: RegLike, RM: RegMemLike> Encoder<R, RM> {
         self
     }
 
+    /// REX.B bitは、
+    ///
+    /// - ModRM の r/m
+    /// - SIB の base、
+    /// - opcode の reg
+    ///
+    /// の各フィールドの拡張として使われる。
+    /// これらのうち、opcode の reg だけは
+    /// 拡張するかどうかを外部から与えなければ
+    /// いけないため、このメソッドを生やす
+    pub fn rex_b(mut self, rex_b: bool) -> Self {
+        self.rex_b = rex_b;
+        self
+    }
+
     pub fn opcode(mut self, opcode: BytesAtMost<3>) -> Self {
         self.opcode = opcode;
         self
@@ -47,6 +64,7 @@ impl<R: RegLike, RM: RegMemLike> Encoder<R, RM> {
         Encoder {
             prefix: self.prefix,
             rex_w: self.rex_w,
+            rex_b: self.rex_b,
             opcode: self.opcode,
             mod_rm: Some((reg, rm)),
             imm: self.imm,
@@ -61,11 +79,20 @@ impl<R: RegLike, RM: RegMemLike> Encoder<R, RM> {
     pub fn encode(self) -> BytesAtMost<15> {
         let mut bytecode = ByteCode::new();
 
+        // prefix
+        bytecode.prefix = self.prefix;
+
         // opcode
         bytecode.opcode = self.opcode;
 
+        // REX.W
         if self.rex_w {
             bytecode.rex.insert(Rex::new()).set_w(true);
+        }
+
+        // REX.B
+        if self.rex_b {
+            bytecode.rex.get_or_insert(Rex::new()).set_b(true);
         }
 
         // ModRM byte
@@ -95,7 +122,7 @@ impl<R: RegLike, RM: RegMemLike> Encoder<R, RM> {
         }
 
         // imm
-        if self.imm.len() == 8 && self.rex_w != false {
+        if self.imm.len() == 8 && self.rex_w == false {
             panic!("64bit immediate value is only valid on 64bit operand mode");
         }
         bytecode.imm = self.imm;

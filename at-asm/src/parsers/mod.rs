@@ -1,3 +1,4 @@
+mod instruction;
 mod line;
 mod num;
 mod reg;

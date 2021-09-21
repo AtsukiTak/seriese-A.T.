@@ -1,5 +1,6 @@
 use byteorder::{WriteBytesExt as _, LE};
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BytesAtMost<const MAX: usize> {
     bytes: [u8; MAX],
     len: usize,

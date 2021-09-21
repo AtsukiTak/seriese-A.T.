@@ -1,5 +1,6 @@
 use super::ParseStr;
-use at_x64::reg::{Reg32, Reg64};
+use at_x64::reg::{Reg16, Reg32};
+use std::process::exit;
 
 impl ParseStr for Reg32 {
     fn try_parse_str(s: &str) -> Option<Self> {
@@ -31,7 +32,43 @@ impl ParseStr for Reg32 {
             Some(reg) => reg,
             None => {
                 eprintln!("error: invalid 32bit register : {}", s);
-                std::process::exit(1);
+                exit(1);
+            }
+        }
+    }
+}
+
+impl ParseStr for Reg16 {
+    fn try_parse_str(s: &str) -> Option<Self> {
+        use Reg16::*;
+
+        match s {
+            "ax" => Some(AX),
+            "di" => Some(DI),
+            "si" => Some(SI),
+            "dx" => Some(DX),
+            "cx" => Some(CX),
+            "bp" => Some(BP),
+            "sp" => Some(SP),
+            "bx" => Some(BX),
+            "r8w" => Some(R8W),
+            "r9w" => Some(R9W),
+            "r10w" => Some(R10W),
+            "r11w" => Some(R11W),
+            "r12w" => Some(R12W),
+            "r13w" => Some(R13W),
+            "r14w" => Some(R14W),
+            "r15w" => Some(R15W),
+            _ => None,
+        }
+    }
+
+    fn parse_str(s: &str) -> Self {
+        match Self::try_parse_str(s) {
+            Some(reg) => reg,
+            None => {
+                eprintln!("error: invalid 16bit register : {}", s);
+                exit(1);
             }
         }
     }

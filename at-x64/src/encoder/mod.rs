@@ -55,8 +55,11 @@ impl<R: RegLike, RM: RegMemLike> Encoder<R, RM> {
         self
     }
 
-    pub fn opcode(mut self, opcode: BytesAtMost<3>) -> Self {
-        self.opcode = opcode;
+    pub fn opcode<B>(mut self, opcode: B) -> Self
+    where
+        BytesAtMost<3>: From<B>,
+    {
+        self.opcode = opcode.into();
         self
     }
 
@@ -71,8 +74,11 @@ impl<R: RegLike, RM: RegMemLike> Encoder<R, RM> {
         }
     }
 
-    pub fn imm(mut self, imm: BytesAtMost<8>) -> Self {
-        self.imm = imm;
+    pub fn imm<I>(mut self, imm: I) -> Self
+    where
+        BytesAtMost<8>: From<I>,
+    {
+        self.imm = imm.into();
         self
     }
 

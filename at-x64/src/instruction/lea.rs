@@ -14,7 +14,7 @@ impl Instruction for Lea<Reg64, Mem64> {
 
         Encoder::new()
             .rex_w(true)
-            .opcode(BytesAtMost::from([0x8D]))
+            .opcode([0x8D])
             .mod_rm(dst_reg, src_mem)
             .encode()
     }

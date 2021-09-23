@@ -19,7 +19,7 @@ impl Instruction for Mov<Mem64, Reg64> {
 
         Encoder::new()
             .rex_w(true)
-            .opcode(BytesAtMost::from([0x89]))
+            .opcode([0x89])
             .mod_rm(src_reg, dst_mem)
             .encode()
     }
@@ -31,7 +31,7 @@ impl Instruction for Mov<Reg16, Reg16> {
 
         Encoder::new()
             .prefix(0x66)
-            .opcode(BytesAtMost::from([0x89]))
+            .opcode([0x89])
             .mod_rm(src_reg, dst_reg)
             .encode()
     }
@@ -42,7 +42,7 @@ impl Instruction for Mov<Reg32, Reg32> {
         let Mov(dst_reg, src_reg) = *self;
 
         Encoder::new()
-            .opcode(BytesAtMost::from([0x89]))
+            .opcode([0x89])
             .mod_rm(src_reg, dst_reg)
             .encode()
     }
@@ -54,7 +54,7 @@ impl Instruction for Mov<Reg64, Reg64> {
 
         Encoder::new()
             .rex_w(true)
-            .opcode(BytesAtMost::from([0x89]))
+            .opcode([0x89])
             .mod_rm(src_reg, dst_reg)
             .encode()
     }
@@ -67,8 +67,8 @@ impl Instruction for Mov<Reg16, u16> {
         Encoder::new()
             .prefix(0x66)
             .rex_b(dst_reg.is_extended())
-            .opcode(BytesAtMost::from([0xB8 + dst_reg.register_code()]))
-            .imm(BytesAtMost::from(src_imm))
+            .opcode([0xB8 + dst_reg.register_code()])
+            .imm(src_imm)
             .encode()
     }
 }
@@ -79,8 +79,8 @@ impl Instruction for Mov<Reg32, u32> {
 
         Encoder::new()
             .rex_b(dst_reg.is_extended())
-            .opcode(BytesAtMost::from([0xB8 + dst_reg.register_code()]))
-            .imm(BytesAtMost::from(src_imm))
+            .opcode([0xB8 + dst_reg.register_code()])
+            .imm(src_imm)
             .encode()
     }
 }
@@ -92,8 +92,8 @@ impl Instruction for Mov<Reg64, u64> {
         Encoder::new()
             .rex_w(true)
             .rex_b(dst_reg.is_extended())
-            .opcode(BytesAtMost::from([0xB8 + dst_reg.register_code()]))
-            .imm(BytesAtMost::from(src_imm))
+            .opcode([0xB8 + dst_reg.register_code()])
+            .imm(src_imm)
             .encode()
     }
 }

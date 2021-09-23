@@ -10,8 +10,6 @@ impl Syscall {
 
 impl Instruction for Syscall {
     fn bytecode(&self) -> BytesAtMost<15> {
-        Encoder::new()
-            .opcode(BytesAtMost::from([0x0f, 0x05]))
-            .encode()
+        Encoder::new().opcode([0x0f, 0x05]).encode()
     }
 }

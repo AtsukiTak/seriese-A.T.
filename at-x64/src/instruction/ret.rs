@@ -10,6 +10,6 @@ impl Ret {
 
 impl Instruction for Ret {
     fn bytecode(&self) -> BytesAtMost<15> {
-        Encoder::new().opcode(BytesAtMost::from([0xc3])).encode()
+        Encoder::new().opcode([0xc3]).encode()
     }
 }

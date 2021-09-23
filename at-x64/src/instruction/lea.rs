@@ -2,13 +2,15 @@ use crate::{BytesAtMost, Encoder, Mem64, Reg64};
 
 pub struct Lea<Dst, Src>(Dst, Src);
 
-impl Lea<Reg64, Mem64> {
-    pub fn new(dst: Reg64, src: Mem64) -> Self {
+impl<Dst, Src> Lea<Dst, Src> {
+    pub fn new(dst: Dst, src: Src) -> Self {
         Lea(dst, src)
     }
+}
 
+impl Lea<Reg64, Mem64> {
     pub fn bytecode(&self) -> BytesAtMost<15> {
-        let (dst_reg, src_mem) = (self.0, self.1);
+        let Lea(dst_reg, src_mem) = *self;
 
         Encoder::new()
             .rex_w(true)

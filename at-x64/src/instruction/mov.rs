@@ -14,12 +14,12 @@ impl<Dst, Src> Mov<Dst, Src> {
 
 impl Mov<Mem64, Reg64> {
     pub fn bytecode(&self) -> BytesAtMost<15> {
-        let (dst, src) = (self.0, self.1);
+        let Mov(dst_mem, src_reg) = *self;
 
         Encoder::new()
             .rex_w(true)
             .opcode(BytesAtMost::from([0x89]))
-            .mod_rm(src, dst)
+            .mod_rm(src_reg, dst_mem)
             .encode()
     }
 }
@@ -37,19 +37,19 @@ impl Mov<Reg32, Reg32> {
 
 impl Mov<Reg64, Reg64> {
     pub fn bytecode(&self) -> BytesAtMost<15> {
-        let (dst, src) = (self.0, self.1);
+        let Mov(dst_reg, src_reg) = *self;
 
         Encoder::new()
             .rex_w(true)
             .opcode(BytesAtMost::from([0x89]))
-            .mod_rm(src, dst)
+            .mod_rm(src_reg, dst_reg)
             .encode()
     }
 }
 
 impl Mov<Reg16, u16> {
     pub fn bytecode(&self) -> BytesAtMost<15> {
-        let (dst_reg, src_imm) = (self.0, self.1);
+        let Mov(dst_reg, src_imm) = *self;
 
         Encoder::new()
             .prefix(0x66)
@@ -62,7 +62,7 @@ impl Mov<Reg16, u16> {
 
 impl Mov<Reg32, u32> {
     pub fn bytecode(&self) -> BytesAtMost<15> {
-        let (dst_reg, src_imm) = (self.0, self.1);
+        let Mov(dst_reg, src_imm) = *self;
 
         Encoder::new()
             .rex_b(dst_reg.is_extended())
@@ -74,7 +74,7 @@ impl Mov<Reg32, u32> {
 
 impl Mov<Reg64, u64> {
     pub fn bytecode(&self) -> BytesAtMost<15> {
-        let (dst_reg, src_imm) = (self.0, self.1);
+        let Mov(dst_reg, src_imm) = *self;
 
         Encoder::new()
             .rex_w(true)
@@ -107,6 +107,21 @@ mod test {
                 Mov(Mem64::sib(Some(RBP), 42, RAX, 3), R13),
                 vec![0x4C, 0x89, 0x6C, 0xC5, 0x2A],
             ),
+        ];
+
+        for (origin, expected) in cases {
+            assert_eq!(origin.bytecode().bytes(), expected);
+        }
+    }
+
+    #[test]
+    fn test_mov_reg64_reg64() {
+        use Reg64::*;
+
+        let cases = [
+            (Mov::new(RDI, RAX), vec![0x48, 0x89, 0xc7]),
+            (Mov::new(R8, RAX), vec![0x49, 0x89, 0xc0]),
+            (Mov::new(R8, R9), vec![0x4d, 0x89, 0xc8]),
         ];
 
         for (origin, expected) in cases {

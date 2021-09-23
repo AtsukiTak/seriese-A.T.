@@ -24,6 +24,17 @@ impl Mov<Mem64, Reg64> {
     }
 }
 
+impl Mov<Reg32, Reg32> {
+    pub fn bytecode(&self) -> BytesAtMost<15> {
+        let Mov(dst_reg, src_reg) = *self;
+
+        Encoder::new()
+            .opcode(BytesAtMost::from([0x89]))
+            .mod_rm(src_reg, dst_reg)
+            .encode()
+    }
+}
+
 impl Mov<Reg64, Reg64> {
     pub fn bytecode(&self) -> BytesAtMost<15> {
         let (dst, src) = (self.0, self.1);

@@ -24,6 +24,18 @@ impl Mov<Mem64, Reg64> {
     }
 }
 
+impl Mov<Reg16, Reg16> {
+    pub fn bytecode(&self) -> BytesAtMost<15> {
+        let Mov(dst_reg, src_reg) = *self;
+
+        Encoder::new()
+            .prefix(0x66)
+            .opcode(BytesAtMost::from([0x89]))
+            .mod_rm(src_reg, dst_reg)
+            .encode()
+    }
+}
+
 impl Mov<Reg32, Reg32> {
     pub fn bytecode(&self) -> BytesAtMost<15> {
         let Mov(dst_reg, src_reg) = *self;
@@ -107,6 +119,21 @@ mod test {
                 Mov(Mem64::sib(Some(RBP), 42, RAX, 3), R13),
                 vec![0x4C, 0x89, 0x6C, 0xC5, 0x2A],
             ),
+        ];
+
+        for (origin, expected) in cases {
+            assert_eq!(origin.bytecode().bytes(), expected);
+        }
+    }
+
+    #[test]
+    fn test_mov_reg16_reg16() {
+        use Reg16::*;
+
+        let cases = [
+            (Mov::new(AX, DI), vec![0x66, 0x89, 0xF8]),
+            (Mov::new(R9W, SP), vec![0x66, 0x41, 0x89, 0xE1]),
+            (Mov::new(R15W, R10W), vec![0x66, 0x45, 0x89, 0xD7]),
         ];
 
         for (origin, expected) in cases {

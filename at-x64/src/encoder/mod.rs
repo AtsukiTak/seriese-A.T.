@@ -2,7 +2,7 @@ mod bytecode;
 
 use crate::{
     mem::Mem64,
-    reg::{Reg32, Reg64},
+    reg::{Reg16, Reg32, Reg64},
     BytesAtMost,
 };
 use bytecode::{ByteCode, ModRM, Rex, Sib};
@@ -179,6 +179,16 @@ impl RegLike for Reg32 {
     }
 }
 
+impl RegLike for Reg16 {
+    fn rex_r(&self) -> bool {
+        self.is_extended()
+    }
+
+    fn reg(&self) -> u8 {
+        self.register_code()
+    }
+}
+
 /// in case of opcode expansion
 impl RegLike for u8 {
     fn rex_r(&self) -> bool {
@@ -217,6 +227,32 @@ impl RegMemLike for Reg64 {
 }
 
 impl RegMemLike for Reg32 {
+    fn rex_b(&self) -> bool {
+        self.is_extended()
+    }
+
+    fn rex_x(&self) -> bool {
+        false
+    }
+
+    fn mode(&self) -> u8 {
+        0b11
+    }
+
+    fn rm(&self) -> u8 {
+        self.register_code()
+    }
+
+    fn sib(&self) -> Option<Sib> {
+        None
+    }
+
+    fn disp_bytes(&self) -> BytesAtMost<4> {
+        BytesAtMost::with_len(0)
+    }
+}
+
+impl RegMemLike for Reg16 {
     fn rex_b(&self) -> bool {
         self.is_extended()
     }

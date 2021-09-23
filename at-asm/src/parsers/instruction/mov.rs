@@ -46,21 +46,23 @@ impl ParseStr for AnyMov {
 
             // if second operand is u32
             if let Some(src_imm) = u32::try_parse_str(operand2_str) {
-                if tokens.next().is_some() {
-                    eprintln!("error: end of line expected after second operand");
-                    exit(1);
-                }
-
-                Some(AnyMov(Mov::new(dst_reg, src_imm).bytecode()))
-
-            // otherwise, error
-            } else {
-                eprintln!("error: invalid second operand");
-                exit(1);
+                let mov = Mov::new(dst_reg, src_imm);
+                return Some(AnyMov(mov.bytecode()));
             }
 
-        // if first operand is reg16
-        } else if let Some(dst_reg) = Reg16::try_parse_str(operand1_str) {
+            // if second operand is Reg32
+            if let Some(src_reg) = Reg32::try_parse_str(operand2_str) {
+                let mov = Mov::new(dst_reg, src_reg);
+                return Some(AnyMov(mov.bytecode()));
+            }
+
+            // otherwise, error
+            eprintln!("error: invalid second operand");
+            exit(1);
+        }
+
+        // if first operand is Reg16
+        if let Some(dst_reg) = Reg16::try_parse_str(operand1_str) {
             let operand2_str = match tokens.next() {
                 Some(s) => s,
                 None => {
@@ -71,19 +73,24 @@ impl ParseStr for AnyMov {
 
             // if second operand i u16
             if let Some(src_imm) = u16::try_parse_str(operand2_str) {
-                Some(AnyMov(Mov::new(dst_reg, src_imm).bytecode()))
-
-            // otherwise, error
-            } else {
-                eprintln!("error: invalid second operand");
-                exit(1);
+                let mov = Mov::new(dst_reg, src_imm);
+                return Some(AnyMov(mov.bytecode()));
             }
 
-        // otherwise, error
-        } else {
-            eprintln!("error: invalid first operand");
+            // if second operand is Reg16
+            if let Some(src_reg) = Reg16::try_parse_str(operand2_str) {
+                let mov = Mov::new(dst_reg, src_reg);
+                return Some(AnyMov(mov.bytecode()));
+            }
+
+            // otherwise, error
+            eprintln!("error: invalid second operand");
             exit(1);
         }
+
+        // otherwise, error
+        eprintln!("error: invalid first operand");
+        exit(1);
     }
 
     fn parse_str(s: &str) -> Self {

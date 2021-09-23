@@ -115,6 +115,21 @@ mod test {
     }
 
     #[test]
+    fn test_mov_reg32_reg32() {
+        use Reg32::*;
+
+        let cases = [
+            (Mov::new(EAX, ESP), vec![0x89, 0xe0]),
+            (Mov::new(R15D, ESP), vec![0x41, 0x89, 0xE7]),
+            (Mov::new(R15D, R8D), vec![0x45, 0x89, 0xC7]),
+        ];
+
+        for (origin, expected) in cases {
+            assert_eq!(origin.bytecode().bytes(), expected);
+        }
+    }
+
+    #[test]
     fn test_mov_reg64_reg64() {
         use Reg64::*;
 

@@ -1,4 +1,4 @@
-use crate::{BytesAtMost, Encoder, Mem64, Reg64};
+use crate::{mem::Mem64, reg::Reg64, BytesAtMost, Encoder, Instruction};
 
 pub struct Lea<Dst, Src>(Dst, Src);
 
@@ -8,8 +8,8 @@ impl<Dst, Src> Lea<Dst, Src> {
     }
 }
 
-impl Lea<Reg64, Mem64> {
-    pub fn bytecode(&self) -> BytesAtMost<15> {
+impl Instruction for Lea<Reg64, Mem64> {
+    fn bytecode(&self) -> BytesAtMost<15> {
         let Lea(dst_reg, src_mem) = *self;
 
         Encoder::new()

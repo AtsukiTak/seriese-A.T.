@@ -1,5 +1,8 @@
 use super::{instruction::mov::AnyMov, ParseStr};
-use at_x64::{instruction::Ret, BytesAtMost};
+use at_x64::{
+    instruction::{Instruction, Ret},
+    BytesAtMost,
+};
 use std::process::exit;
 
 pub enum Line {

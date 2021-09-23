@@ -1,7 +1,8 @@
 use crate::{
     encoder::Encoder,
+    mem::Mem64,
     reg::{Reg16, Reg32, Reg64},
-    BytesAtMost, Mem64,
+    BytesAtMost, Instruction,
 };
 
 pub struct Mov<Dst, Src>(pub Dst, pub Src);
@@ -12,8 +13,8 @@ impl<Dst, Src> Mov<Dst, Src> {
     }
 }
 
-impl Mov<Mem64, Reg64> {
-    pub fn bytecode(&self) -> BytesAtMost<15> {
+impl Instruction for Mov<Mem64, Reg64> {
+    fn bytecode(&self) -> BytesAtMost<15> {
         let Mov(dst_mem, src_reg) = *self;
 
         Encoder::new()
@@ -24,8 +25,8 @@ impl Mov<Mem64, Reg64> {
     }
 }
 
-impl Mov<Reg16, Reg16> {
-    pub fn bytecode(&self) -> BytesAtMost<15> {
+impl Instruction for Mov<Reg16, Reg16> {
+    fn bytecode(&self) -> BytesAtMost<15> {
         let Mov(dst_reg, src_reg) = *self;
 
         Encoder::new()
@@ -36,8 +37,8 @@ impl Mov<Reg16, Reg16> {
     }
 }
 
-impl Mov<Reg32, Reg32> {
-    pub fn bytecode(&self) -> BytesAtMost<15> {
+impl Instruction for Mov<Reg32, Reg32> {
+    fn bytecode(&self) -> BytesAtMost<15> {
         let Mov(dst_reg, src_reg) = *self;
 
         Encoder::new()
@@ -47,8 +48,8 @@ impl Mov<Reg32, Reg32> {
     }
 }
 
-impl Mov<Reg64, Reg64> {
-    pub fn bytecode(&self) -> BytesAtMost<15> {
+impl Instruction for Mov<Reg64, Reg64> {
+    fn bytecode(&self) -> BytesAtMost<15> {
         let Mov(dst_reg, src_reg) = *self;
 
         Encoder::new()
@@ -59,8 +60,8 @@ impl Mov<Reg64, Reg64> {
     }
 }
 
-impl Mov<Reg16, u16> {
-    pub fn bytecode(&self) -> BytesAtMost<15> {
+impl Instruction for Mov<Reg16, u16> {
+    fn bytecode(&self) -> BytesAtMost<15> {
         let Mov(dst_reg, src_imm) = *self;
 
         Encoder::new()
@@ -72,8 +73,8 @@ impl Mov<Reg16, u16> {
     }
 }
 
-impl Mov<Reg32, u32> {
-    pub fn bytecode(&self) -> BytesAtMost<15> {
+impl Instruction for Mov<Reg32, u32> {
+    fn bytecode(&self) -> BytesAtMost<15> {
         let Mov(dst_reg, src_imm) = *self;
 
         Encoder::new()
@@ -84,8 +85,8 @@ impl Mov<Reg32, u32> {
     }
 }
 
-impl Mov<Reg64, u64> {
-    pub fn bytecode(&self) -> BytesAtMost<15> {
+impl Instruction for Mov<Reg64, u64> {
+    fn bytecode(&self) -> BytesAtMost<15> {
         let Mov(dst_reg, src_imm) = *self;
 
         Encoder::new()

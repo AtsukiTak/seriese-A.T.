@@ -1,6 +1,6 @@
 use super::super::ParseStr;
 use at_x64::{
-    instruction::Mov,
+    instruction::{Instruction, Mov},
     reg::{Reg16, Reg32, Reg64},
     BytesAtMost,
 };

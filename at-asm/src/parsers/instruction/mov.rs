@@ -1,7 +1,7 @@
 use super::super::ParseStr;
 use at_x64::{
     instruction::Mov,
-    reg::{Reg16, Reg32},
+    reg::{Reg16, Reg32, Reg64},
     BytesAtMost,
 };
 use std::process::exit;
@@ -33,6 +33,33 @@ impl ParseStr for AnyMov {
                 exit(1);
             }
         };
+
+        // if first operand is reg64
+        if let Some(dst_reg) = Reg64::try_parse_str(operand1_str) {
+            let operand2_str = match tokens.next() {
+                Some(s) => s,
+                None => {
+                    eprintln!("error: second operand is expected");
+                    exit(1);
+                }
+            };
+
+            // if second operand is u64
+            if let Some(src_imm) = u64::try_parse_str(operand2_str) {
+                let mov = Mov::new(dst_reg, src_imm);
+                return Some(AnyMov(mov.bytecode()));
+            }
+
+            // if second operand is Reg64
+            if let Some(src_reg) = Reg64::try_parse_str(operand2_str) {
+                let mov = Mov::new(dst_reg, src_reg);
+                return Some(AnyMov(mov.bytecode()));
+            }
+
+            // otherwise, error
+            eprintln!("error: invalid second operand");
+            exit(1);
+        }
 
         // if first operand is reg32
         if let Some(dst_reg) = Reg32::try_parse_str(operand1_str) {

@@ -1,4 +1,5 @@
 mov edi, 42
 mov r8d, edi
-mov ax, r8w
+mov cx, r8w
+mov rax, rcx
 ret

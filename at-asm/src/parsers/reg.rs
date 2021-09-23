@@ -1,6 +1,42 @@
 use super::ParseStr;
-use at_x64::reg::{Reg16, Reg32};
+use at_x64::reg::{Reg16, Reg32, Reg64};
 use std::process::exit;
+
+impl ParseStr for Reg64 {
+    fn try_parse_str(s: &str) -> Option<Self> {
+        use Reg64::*;
+
+        match s {
+            "rax" => Some(RAX),
+            "rdi" => Some(RDI),
+            "rsi" => Some(RSI),
+            "rdx" => Some(RDX),
+            "rcx" => Some(RCX),
+            "rbp" => Some(RBP),
+            "rsp" => Some(RSP),
+            "rbx" => Some(RBX),
+            "r8" => Some(R8),
+            "r9" => Some(R9),
+            "r10" => Some(R10),
+            "r11" => Some(R11),
+            "r12" => Some(R12),
+            "r13" => Some(R13),
+            "r14" => Some(R14),
+            "r15" => Some(R15),
+            _ => None,
+        }
+    }
+
+    fn parse_str(s: &str) -> Self {
+        match Self::try_parse_str(s) {
+            Some(reg) => reg,
+            None => {
+                eprintln!("error: invalid 64bit register : {}", s);
+                exit(1);
+            }
+        }
+    }
+}
 
 impl ParseStr for Reg32 {
     fn try_parse_str(s: &str) -> Option<Self> {

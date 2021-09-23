@@ -37,7 +37,7 @@ impl ByteCode {
 
         let mut bytes = BytesAtMost::with_len(len);
 
-        let mut cursor = Cursor::new(bytes.bytes_mut());
+        let mut cursor = Cursor::new(bytes.as_mut());
 
         if let Some(prefix) = self.prefix {
             cursor.write_u8(prefix).unwrap();
@@ -47,7 +47,7 @@ impl ByteCode {
             cursor.write_u8(rex.byte()).unwrap();
         }
 
-        cursor.write_all(self.opcode.bytes()).unwrap();
+        cursor.write_all(self.opcode.as_ref()).unwrap();
 
         if let Some(mod_rm) = self.mod_rm.as_ref() {
             cursor.write_u8(mod_rm.byte()).unwrap();
@@ -57,9 +57,9 @@ impl ByteCode {
             cursor.write_u8(sib.byte()).unwrap();
         }
 
-        cursor.write_all(self.addr_disp.bytes()).unwrap();
+        cursor.write_all(self.addr_disp.as_ref()).unwrap();
 
-        cursor.write_all(self.imm.bytes()).unwrap();
+        cursor.write_all(self.imm.as_ref()).unwrap();
 
         bytes
     }

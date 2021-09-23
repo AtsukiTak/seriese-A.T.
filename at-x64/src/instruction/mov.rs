@@ -123,7 +123,7 @@ mod test {
         ];
 
         for (origin, expected) in cases {
-            assert_eq!(origin.bytecode().bytes(), expected);
+            assert_eq!(origin.bytecode().as_ref(), expected);
         }
     }
 
@@ -138,7 +138,7 @@ mod test {
         ];
 
         for (origin, expected) in cases {
-            assert_eq!(origin.bytecode().bytes(), expected);
+            assert_eq!(origin.bytecode().as_ref(), expected);
         }
     }
 
@@ -153,7 +153,7 @@ mod test {
         ];
 
         for (origin, expected) in cases {
-            assert_eq!(origin.bytecode().bytes(), expected);
+            assert_eq!(origin.bytecode().as_ref(), expected);
         }
     }
 
@@ -168,7 +168,7 @@ mod test {
         ];
 
         for (origin, expected) in cases {
-            assert_eq!(origin.bytecode().bytes(), expected);
+            assert_eq!(origin.bytecode().as_ref(), expected);
         }
     }
 
@@ -182,7 +182,7 @@ mod test {
         ];
 
         for (origin, expected) in cases {
-            assert_eq!(origin.bytecode().bytes(), expected);
+            assert_eq!(origin.bytecode().as_ref(), expected);
         }
     }
 
@@ -199,7 +199,7 @@ mod test {
         ];
 
         for (origin, expected) in cases {
-            assert_eq!(origin.bytecode().bytes(), expected);
+            assert_eq!(origin.bytecode().as_ref(), expected);
         }
     }
 
@@ -219,7 +219,7 @@ mod test {
         ];
 
         for (origin, expected) in cases {
-            assert_eq!(origin.bytecode().bytes(), expected);
+            assert_eq!(origin.bytecode().as_ref(), expected);
         }
     }
 }

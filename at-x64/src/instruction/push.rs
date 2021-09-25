@@ -11,6 +11,32 @@ impl<T> Push<T> {
     }
 }
 
+impl Instruction for Push<u8> {
+    fn bytecode(&self) -> BytesAtMost<15> {
+        let Push(imm) = *self;
+
+        Encoder::new().opcode([0x6A]).imm(imm).encode()
+    }
+}
+
+impl Instruction for Push<u16> {
+    fn bytecode(&self) -> BytesAtMost<15> {
+        let Push(imm) = *self;
+
+        Encoder::new().prefix(0x66).opcode([0x68]).imm(imm).encode()
+    }
+}
+
+impl Instruction for Push<u32> {
+    fn bytecode(&self) -> BytesAtMost<15> {
+        let Push(imm) = *self;
+
+        Encoder::new().opcode([0x68]).imm(imm).encode()
+    }
+}
+
+/// Note that this instruction push 16bit data.
+/// It breaks 64bit stack alignment.
 impl Instruction for Push<Reg16> {
     fn bytecode(&self) -> BytesAtMost<15> {
         let Push(reg) = *self;
@@ -37,6 +63,33 @@ impl Instruction for Push<Reg64> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_push_imm8() {
+        let cases = [(Push::new(42_u8), vec![0x6A, 0x2A])];
+
+        for (origin, expected) in cases {
+            assert_eq!(origin.bytecode().as_ref(), expected);
+        }
+    }
+
+    #[test]
+    fn test_push_imm16() {
+        let cases = [(Push::new(420_u16), vec![0x66, 0x68, 0xA4, 0x01])];
+
+        for (origin, expected) in cases {
+            assert_eq!(origin.bytecode().as_ref(), expected);
+        }
+    }
+
+    #[test]
+    fn test_push_imm32() {
+        let cases = [(Push::new(420_u32), vec![0x68, 0xA4, 0x01, 0x00, 0x00])];
+
+        for (origin, expected) in cases {
+            assert_eq!(origin.bytecode().as_ref(), expected);
+        }
+    }
 
     #[test]
     fn test_push_reg16() {

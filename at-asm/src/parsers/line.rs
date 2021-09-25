@@ -1,6 +1,9 @@
-use super::{instruction::mov::AnyMov, ParseStr};
+use super::{
+    instruction::{AnyMov, AnyPush},
+    ParseStr,
+};
 use at_x64::{
-    instruction::{Instruction, Ret},
+    instruction::{Instruction, Ret, Syscall},
     BytesAtMost,
 };
 use std::process::exit;
@@ -18,6 +21,8 @@ impl ParseStr for Line {
         let bytes = match opcode {
             "ret" => Ret::new().bytecode(),
             "mov" => AnyMov::parse_str(s).bytecode(),
+            "push" => AnyPush::parse_str(s).bytecode(),
+            "syscall" => Syscall::new().bytecode(),
             _ => {
                 eprintln!("error: unknown opcode {}", opcode);
                 exit(1);

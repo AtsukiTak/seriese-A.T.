@@ -49,3 +49,4 @@ cargo build
 
 assert_exit_code "minimum" 24
 assert_exit_code "many_mov" 42
+assert_exit_code "simple_hello_world" 0

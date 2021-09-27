@@ -24,6 +24,7 @@ pub fn assemble<R: Read, W: Write>(read: &mut R, write: &mut W) {
 
 fn parse_line(line_str: &str, obj: &mut Object) {
     match parse::<Line>(line_str) {
+        Line::Empty => {}
         Line::Instruction(bytes) => obj.sections.text.bytes.extend_from_slice(bytes.as_ref()),
     };
 }

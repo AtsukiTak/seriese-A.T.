@@ -9,16 +9,18 @@ mkdir -p /tmp/at-asm/tests
 cargo build
 asm="../target/debug/at-asm"
 
-assert_exit_code() {
+# アセンブル、リンク、実行をし、
+# 終了コードと標準出力をテストする
+run() {
   testcase=$1
   input_file="tests/${testcase}.s"
   output_file="$output_dir/${testcase}.o"
   bin_file="$output_dir/${testcase}.bin"
   expected_exit_code="$2"
+  expected_output="$3"
 
   echo "======================"
   echo "  Test ${testcase}"
-  echo "  $asm -o $output_file $input_file"
 
   $asm -o $output_file $input_file
 
@@ -28,25 +30,32 @@ assert_exit_code() {
     exit $asm_result
   fi
 
-  # link and run
+  # link
   ld -lSystem -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib $output_file -o $bin_file
-  $bin_file
+
+  # run
+  output="$($bin_file)"
   code="$?"
 
   # compare
-  if [ "$code" = "$expected_exit_code" ]; then
-    echo "  SUCCESS!!"
-    echo "======================"
-  else
+  if [ "$code" != "$expected_exit_code" ]; then
     echo "  FAILED"
     echo "  status code is ${code} but expected ${expected_exit_code}."
     echo "======================"
     exit 1
+  elif [ "$output" != "$expected_output" ]; then
+    echo "  FAILED"
+    echo "  output is ${output} but expected ${expected_output}."
+    echo "======================"
+    exit 1
+  else
+    echo "  SUCCESS!!"
+    echo "======================"
   fi
 }
 
 cargo build
 
-assert_exit_code "minimum" 24
-assert_exit_code "many_mov" 42
-assert_exit_code "simple_hello_world" 0
+run "minimum" 24
+run "many_mov" 42
+run "simple_hello_world" 0 "Hello world!"

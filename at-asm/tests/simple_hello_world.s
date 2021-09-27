@@ -1,5 +1,5 @@
-push 0x21646c72
-mov rax, 0x6f77206f6c6c6548
+push 0x21646c72  ; "!dlr"
+mov rax, 0x6f77206f6c6c6548 ; "ow olleH"
 push rax
 mov rsi, rsp
 mov rdi, 1

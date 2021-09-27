@@ -14,6 +14,12 @@ pub enum Line {
 
 impl ParseStr for Line {
     fn parse_str(s: &str) -> Self {
+        // コメントを無視
+        let s = match s.split_once(";") {
+            Some((s, _)) => s,
+            None => s,
+        };
+
         let mut tokens = s.split_whitespace();
 
         let opcode = tokens.next().unwrap();

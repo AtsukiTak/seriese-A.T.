@@ -1,2 +1,3 @@
-mov ax, 24
-ret
+_main:
+  mov ax, 24
+  ret

@@ -1,7 +1,7 @@
 mod parsers;
 pub mod reader;
 
-use self::parsers::{parse, Line};
+use self::parsers::{Line, ParseStr as _};
 use crate::reader::Reader;
 use at_obj::{macho, Object, Symbol};
 use std::io::{Read, Write};
@@ -14,17 +14,20 @@ pub fn assemble<R: Read, W: Write>(read: &mut R, write: &mut W) {
         parse_line(line, &mut obj);
     }
 
-    obj.sections.text.symbols = vec![Symbol::Ref {
-        name: "_main".to_string(),
-        addr: 0,
-        ext: true,
-    }];
     macho::write_into(&obj, write);
 }
 
 fn parse_line(line_str: &str, obj: &mut Object) {
-    match parse::<Line>(line_str) {
+    match Line::parse_str(line_str) {
         Line::Empty => {}
+        Line::Symbol(name) => {
+            let symbol = Symbol::Ref {
+                name,
+                addr: obj.sections.text.bytes.len() as u64,
+                ext: true,
+            };
+            obj.sections.text.symbols.push(symbol);
+        }
         Line::Instruction(bytes) => obj.sections.text.bytes.extend_from_slice(bytes.as_ref()),
     };
 }

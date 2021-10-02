@@ -8,6 +8,7 @@ version = "0.1.0"
 dependencies = [
  "at-obj",
  "at-x64",
+ "byteorder",
 ]
 
 [[package]]

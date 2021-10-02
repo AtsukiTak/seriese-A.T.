@@ -1,3 +1,10 @@
+section .data
+  ; dummy data
+  db 0x21, 0x42
+  dw 0x2233
+  dd 0x11111111
+
+section .text
 _main:
   ; prepare data
   push 0x21646c72  ; "!dlr"
@@ -15,3 +22,4 @@ _main:
   mov rax, 0x2000001
   mov rdi, 0
   syscall
+

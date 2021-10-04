@@ -14,9 +14,20 @@ pub fn assemble<R: Read, W: Write>(read: &mut R, write: &mut W) {
     let mut obj = Object::new();
 
     let mut cur_sect = TargetSection::Text(&mut obj.sections.text);
+    let mut n_line = 0;
 
     while let Some(line) = reader.next_line() {
-        match Line::parse_str(line) {
+        n_line += 1;
+
+        let parsed_line = match Line::parse_str(line) {
+            Ok(parsed) => parsed,
+            Err(err) => {
+                eprintln!("error at line {}: {}", n_line, err.msg());
+                exit(1);
+            }
+        };
+
+        match parsed_line {
             Line::Empty => {}
             Line::Section(sect) => {
                 cur_sect = match sect {

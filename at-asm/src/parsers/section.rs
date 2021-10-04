@@ -1,5 +1,4 @@
-use super::ParseStr;
-use std::process::exit;
+use super::{ParseError, ParseStr};
 
 #[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub enum Section {
@@ -9,37 +8,39 @@ pub enum Section {
 }
 
 impl ParseStr for Section {
-    fn try_parse_str(s: &str) -> Option<Self> {
+    fn try_parse_str(s: &str) -> Result<Option<Self>, ParseError> {
         let mut tokens = s.split_whitespace();
 
         if tokens.next() != Some("section") {
-            return None;
+            return Ok(None);
         }
 
-        let section = match tokens.next() {
+        let sect = match tokens.next() {
             Some(".text") => Section::Text,
             Some(".data") => Section::Data,
             Some(".bss") => Section::Bss,
             Some(other) => {
-                eprintln!("error: unrecognized section {}", other);
-                exit(1);
+                return Err(ParseError::new(format!("unrecognized section {}", other)));
             }
             None => {
-                eprintln!("error: section name is expected");
-                exit(1);
+                return Err(ParseError::new("section name is expected"));
             }
         };
 
-        Some(section)
+        if tokens.next().is_some() {
+            return Err(ParseError::new(
+                "expected end of line after section declaration",
+            ));
+        }
+
+        Ok(Some(sect))
     }
 
-    fn parse_str(s: &str) -> Self {
+    fn parse_str(s: &str) -> Result<Self, ParseError> {
         match Section::try_parse_str(s) {
-            Some(sect) => sect,
-            None => {
-                eprintln!("error: invalid section declaration");
-                exit(1);
-            }
+            Ok(Some(s)) => Ok(s),
+            Ok(None) => Err(ParseError::new("invalid section declaration")),
+            Err(err) => Err(err),
         }
     }
 }
@@ -49,9 +50,21 @@ mod tests {
     use super::*;
 
     #[test]
-    fn should_parse_valid_str() {
-        assert_eq!(Section::parse_str("section .text"), Section::Text);
-        assert_eq!(Section::parse_str("section .data"), Section::Data);
-        assert_eq!(Section::parse_str("section .bss"), Section::Bss);
+    fn should_ok_some() {
+        assert_eq!(Section::parse_str("section .text").unwrap(), Section::Text);
+        assert_eq!(Section::parse_str("section .data").unwrap(), Section::Data);
+        assert_eq!(Section::parse_str("section .bss").unwrap(), Section::Bss);
+    }
+
+    #[test]
+    fn should_ok_none() {
+        assert!(Section::try_parse_str("mov rax, 42").unwrap().is_none());
+        assert!(Section::try_parse_str("hoge").unwrap().is_none());
+    }
+
+    #[test]
+    fn should_err() {
+        assert!(Section::try_parse_str("section .hoge").is_err());
+        assert!(Section::try_parse_str("section .text .data").is_err());
     }
 }

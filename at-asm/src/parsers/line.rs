@@ -2,7 +2,7 @@ use super::{
     data::Data,
     instruction::{AnyMov, AnyPush},
     section::Section,
-    ParseStr,
+    ParseError, ParseStr,
 };
 use at_x64::{
     instruction::{Instruction, Ret, Syscall},
@@ -19,7 +19,7 @@ pub enum Line {
 }
 
 impl ParseStr for Line {
-    fn parse_str(s: &str) -> Self {
+    fn parse_str(s: &str) -> Result<Self, ParseError> {
         // コメントを無視
         let s = match s.split_once(";") {
             Some((s, _)) => s,
@@ -28,16 +28,17 @@ impl ParseStr for Line {
 
         let mut tokens = s.split_whitespace();
 
+        // 空行
         let token = match tokens.next() {
             Some(token) => token,
             None => {
-                return Line::Empty;
+                return Ok(Line::Empty);
             }
         };
 
         // section
-        if let Some(section) = Section::try_parse_str(s) {
-            return Line::Section(section);
+        if let Some(section) = Section::try_parse_str(s)? {
+            return Ok(Line::Section(section));
         }
 
         // シンボル
@@ -47,30 +48,27 @@ impl ParseStr for Line {
                 exit(1);
             }
             let symbol = token.trim_end_matches(":");
-            return Line::Symbol(symbol.to_string());
+            return Ok(Line::Symbol(symbol.to_string()));
         }
 
         // data
-        if let Some(Data(data)) = Data::try_parse_str(s) {
-            return Line::Data(data);
+        if let Some(Data(data)) = Data::try_parse_str(s)? {
+            return Ok(Line::Data(data));
         }
 
         // instruction
         let bytes = match token {
             "ret" => Ret::new().bytecode(),
-            "mov" => AnyMov::parse_str(s).bytecode(),
-            "push" => AnyPush::parse_str(s).bytecode(),
+            "mov" => AnyMov::parse_str(s)?.bytecode(),
+            "push" => AnyPush::parse_str(s)?.bytecode(),
             "syscall" => Syscall::new().bytecode(),
-            _ => {
-                eprintln!("error: unknown opcode {}", token);
-                exit(1);
-            }
+            _ => return Err(ParseError::new(format!("error: unknown opcode {}", token))),
         };
 
-        Line::Instruction(bytes)
+        Ok(Line::Instruction(bytes))
     }
 
-    fn try_parse_str(s: &str) -> Option<Self> {
-        Some(Self::parse_str(s))
+    fn try_parse_str(s: &str) -> Result<Option<Self>, ParseError> {
+        Ok(Some(Self::parse_str(s)?))
     }
 }

@@ -1,10 +1,10 @@
-use super::ParseStr;
+use super::{ParseError, ParseStr};
 use byteorder::{WriteBytesExt as _, LE};
 
 pub struct Data(pub Vec<u8>);
 
 impl ParseStr for Data {
-    fn try_parse_str(s: &str) -> Option<Self> {
+    fn try_parse_str(s: &str) -> Result<Option<Self>, ParseError> {
         let mut tokens = s
             .split(|c: char| c.is_whitespace() || c == ',')
             .filter(|s| !s.is_empty());
@@ -13,32 +13,39 @@ impl ParseStr for Data {
 
         match tokens.next() {
             Some("db") => {
-                tokens
-                    .map(u8::parse_str)
-                    .for_each(|n| data.write_u8(n).unwrap());
+                for token in tokens {
+                    let n = u8::parse_str(token)?;
+                    data.write_u8(n).unwrap();
+                }
             }
             Some("dw") => {
-                tokens
-                    .map(u16::parse_str)
-                    .for_each(|n| data.write_u16::<LE>(n).unwrap());
+                for token in tokens {
+                    let n = u16::parse_str(token)?;
+                    data.write_u16::<LE>(n).unwrap();
+                }
             }
             Some("dd") => {
-                tokens
-                    .map(u32::parse_str)
-                    .for_each(|n| data.write_u32::<LE>(n).unwrap());
+                for token in tokens {
+                    let n = u32::parse_str(token)?;
+                    data.write_u32::<LE>(n).unwrap();
+                }
             }
             Some("dq") => {
-                tokens
-                    .map(u64::parse_str)
-                    .for_each(|n| data.write_u64::<LE>(n).unwrap());
+                for token in tokens {
+                    let n = u64::parse_str(token)?;
+                    data.write_u64::<LE>(n).unwrap();
+                }
             }
-            _ => return None,
+            _ => return Ok(None),
         };
 
-        Some(Data(data))
+        Ok(Some(Data(data)))
     }
 
-    fn parse_str(_s: &str) -> Self {
-        unimplemented!()
+    fn parse_str(s: &str) -> Result<Self, ParseError> {
+        match Self::try_parse_str(s)? {
+            Some(s) => Ok(s),
+            None => Err(ParseError::new("invalid data format")),
+        }
     }
 }

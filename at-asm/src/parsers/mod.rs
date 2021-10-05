@@ -17,7 +17,7 @@ pub trait ParseStr: Sized {
     fn parse_str(s: &str) -> Result<Self, ParseError>;
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ParseError {
     msg: String,
 }

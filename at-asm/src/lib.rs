@@ -45,7 +45,7 @@ pub fn assemble<R: Read, W: Write>(read: &mut R, write: &mut W) {
                 cur_sect.push_symbol(symbol);
             }
             Line::Data(data) => {
-                cur_sect.write_bytes(data.as_ref());
+                cur_sect.write_bytes(data.bytes());
             }
             Line::Instruction(bytes) => {
                 cur_sect.write_bytes(bytes.as_ref());

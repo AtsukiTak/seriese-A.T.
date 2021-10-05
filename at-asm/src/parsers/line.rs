@@ -14,7 +14,7 @@ pub enum Line {
     Empty,
     Section(Section),
     Symbol(String),
-    Data(Vec<u8>),
+    Data(Data),
     Instruction(BytesAtMost<15>),
 }
 
@@ -52,7 +52,7 @@ impl ParseStr for Line {
         }
 
         // data
-        if let Some(Data(data)) = Data::try_parse_str(s)? {
+        if let Some(data) = Data::try_parse_str(s)? {
             return Ok(Line::Data(data));
         }
 

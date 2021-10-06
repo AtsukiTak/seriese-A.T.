@@ -3,14 +3,8 @@ use byteorder::{WriteBytesExt as _, LE};
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub struct Data {
-    label: Option<String>,
-    bytes: Vec<u8>,
-}
-
-impl Data {
-    pub fn bytes(&self) -> &[u8] {
-        self.bytes.as_slice()
-    }
+    pub label: Option<String>,
+    pub bytes: Vec<u8>,
 }
 
 impl ParseStr for Data {

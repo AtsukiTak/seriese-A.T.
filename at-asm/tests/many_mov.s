@@ -1,3 +1,4 @@
+global _main
 _main:
   mov edi, 42
   mov r8d, edi

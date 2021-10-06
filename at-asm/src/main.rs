@@ -1,4 +1,4 @@
-use at_asm::assemble;
+use at_asm::Assembler;
 use std::{fs::OpenOptions, path::PathBuf, process::exit};
 
 pub fn main() {
@@ -16,7 +16,9 @@ pub fn main() {
         .open(&config.output_path)
         .unwrap();
 
-    assemble(&mut input_file, &mut output_file);
+    Assembler::new()
+        .read_from(&mut input_file)
+        .write_into(&mut output_file);
 }
 
 struct Config {

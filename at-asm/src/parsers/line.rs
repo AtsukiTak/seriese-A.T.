@@ -1,5 +1,6 @@
 use super::{
     data::Data,
+    global_symbol::GlobalSymbol,
     instruction::{AnyMov, AnyPush},
     section::Section,
     ParseError, ParseStr,
@@ -8,12 +9,12 @@ use at_x64::{
     instruction::{Instruction, Ret, Syscall},
     BytesAtMost,
 };
-use std::process::exit;
 
 pub enum Line {
     Empty,
     Section(Section),
     Symbol(String),
+    GlobalSymbol(String),
     Data(Data),
     Instruction(BytesAtMost<15>),
 }
@@ -41,11 +42,15 @@ impl ParseStr for Line {
             return Ok(Line::Section(section));
         }
 
+        // global symbol
+        if let Some(symbol) = GlobalSymbol::try_parse_str(s)? {
+            return Ok(Line::GlobalSymbol(symbol.0));
+        }
+
         // シンボル
         if token.ends_with(":") {
             if tokens.next().is_some() {
-                eprintln!("error: expected end of line.");
-                exit(1);
+                return Err(ParseError::new("error: expected end of line."));
             }
             let symbol = token.trim_end_matches(":");
             return Ok(Line::Symbol(symbol.to_string()));

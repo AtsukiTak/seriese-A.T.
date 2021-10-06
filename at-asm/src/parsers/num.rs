@@ -4,22 +4,14 @@ use std::any::type_name;
 macro_rules! impl_parse_str {
     ($($ty:ty)*) => {$(
         impl ParseStr for $ty {
+            /// Never error.
+            /// Because another number format possibly fit.
             fn try_parse_str(s: &str) -> Result<Option<Self>, ParseError> {
-                if !s.starts_with(|c: char| c.is_ascii_digit()) {
-                    return Ok(None);
-                }
-
                 if s.starts_with("0x") {
                     let s = s.trim_start_matches("0x");
-                    match Self::from_str_radix(s, 16) {
-                        Ok(n) => Ok(Some(n)),
-                        Err(_) => Err(ParseError::new(format!("{} is invalid {}", s, type_name::<$ty>()))),
-                    }
+                    Ok(Self::from_str_radix(s, 16).ok())
                 } else {
-                    match Self::from_str_radix(s, 10) {
-                        Ok(n) => Ok(Some(n)),
-                        Err(_) => Err(ParseError::new(format!("{} is invalid {}", s, type_name::<$ty>()))),
-                    }
+                    Ok(Self::from_str_radix(s, 10).ok())
                 }
             }
 

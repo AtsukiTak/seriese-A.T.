@@ -1,4 +1,5 @@
 mod data;
+mod global_symbol;
 mod instruction;
 mod line;
 mod num;

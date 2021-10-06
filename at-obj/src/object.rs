@@ -16,6 +16,24 @@ impl Object {
     pub fn sections(&self) -> &Sections {
         &self.sections
     }
+
+    pub fn symbols(&self) -> impl Iterator<Item = &Symbol> {
+        self.sections
+            .text
+            .symbols
+            .iter()
+            .chain(self.sections.data.symbols.iter())
+            .chain(self.sections.bss.symbols.iter())
+    }
+
+    pub fn symbols_mut(&mut self) -> impl Iterator<Item = &mut Symbol> {
+        self.sections
+            .text
+            .symbols
+            .iter_mut()
+            .chain(self.sections.data.symbols.iter_mut())
+            .chain(self.sections.bss.symbols.iter_mut())
+    }
 }
 
 pub struct Sections {

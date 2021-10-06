@@ -59,3 +59,4 @@ cargo build
 run "minimum" 24
 run "many_mov" 42
 run "simple_hello_world" 0 "Hello world!"
+run "reloc_hello_world" 0 "hello, world"

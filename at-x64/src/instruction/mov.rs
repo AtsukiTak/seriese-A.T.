@@ -85,6 +85,15 @@ impl Instruction for Mov<Reg32, u32> {
     }
 }
 
+impl Mov<Reg32, u32> {
+    pub fn offset_to_imm_bytes(&self) -> u8 {
+        let Mov(dst_reg, _) = *self;
+
+        dst_reg.is_extended() as u8 // REX
+        + 1 // opcode
+    }
+}
+
 impl Instruction for Mov<Reg64, u64> {
     fn bytecode(&self) -> BytesAtMost<15> {
         let Mov(dst_reg, src_imm) = *self;
@@ -95,6 +104,13 @@ impl Instruction for Mov<Reg64, u64> {
             .opcode([0xB8 + dst_reg.register_code()])
             .imm(src_imm)
             .encode()
+    }
+}
+
+impl Mov<Reg64, u64> {
+    pub fn offset_to_imm_bytes(&self) -> u8 {
+        1 // REX
+        + 1 // opcode
     }
 }
 
@@ -200,6 +216,12 @@ mod test {
 
         for (origin, expected) in cases {
             assert_eq!(origin.bytecode().as_ref(), expected);
+
+            // offset_to_imm_bytesのテスト
+            assert_eq!(
+                origin.bytecode().len() as u8,
+                origin.offset_to_imm_bytes() + 4
+            );
         }
     }
 
@@ -220,6 +242,12 @@ mod test {
 
         for (origin, expected) in cases {
             assert_eq!(origin.bytecode().as_ref(), expected);
+
+            // offset_to_imm_bytesのテスト
+            assert_eq!(
+                origin.bytecode().len() as u8,
+                origin.offset_to_imm_bytes() + 8
+            );
         }
     }
 }

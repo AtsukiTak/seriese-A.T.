@@ -33,7 +33,7 @@ use at_mac::{
         symtab::SymtabCommand,
     },
     nlist::{NList64, NType, NTypeField},
-    reloc::{RelocLength, RelocationInfo},
+    reloc::{RelocLength, RelocationInfo, X86_64RelocType},
     string_table::StringTable,
 };
 use std::io::Write;
@@ -374,7 +374,9 @@ fn gen_relocation_infos(
                 r_pcrel: reloc.pcrel,
                 r_length: RelocLength::from_u32(reloc.len as u32),
                 r_extern: true,
-                r_type: 1,
+                // TODO
+                // 適切に設定できるようにする
+                r_type: X86_64RelocType::Unsigned.to_u8(),
             };
             reloc_infos.push(reloc_info);
         });

@@ -1,6 +1,6 @@
 use crate::parsers::{Line, ParseStr as _, Section};
 use crate::reader::Reader;
-use at_obj::{macho, BssSection, DataSection, Object, Symbol, TextSection};
+use at_obj::{macho, BssSection, DataSection, Object, Reloc, Symbol, TextSection};
 use std::{
     io::{Read, Write},
     process::exit,
@@ -78,8 +78,17 @@ impl Assembler {
                     }
                     cur_sect_mut.write_bytes(data.bytes.as_slice());
                 }
-                Line::Instruction(bytes) => {
-                    self.cur_sect_mut().write_bytes(bytes.as_ref());
+                Line::Instruction(inst) => {
+                    if let Some(loc_reloc) = inst.reloc {
+                        let reloc = Reloc {
+                            addr: self.cur_sect_mut().size() as i32 + loc_reloc.offset as i32,
+                            symbol: loc_reloc.symbol,
+                            pcrel: loc_reloc.pcrel,
+                            len: loc_reloc.len,
+                        };
+                        self.cur_sect_mut().push_reloc(reloc);
+                    }
+                    self.cur_sect_mut().write_bytes(inst.bytes.as_ref());
                 }
             };
         }
@@ -127,6 +136,16 @@ impl<'a> SectionMut<'a> {
             Text(text) => text.symbols.push(symbol),
             Data(data) => data.symbols.push(symbol),
             Bss(bss) => bss.symbols.push(symbol),
+        }
+    }
+
+    fn push_reloc(&mut self, reloc: Reloc) {
+        use SectionMut::*;
+
+        match self {
+            Text(text) => text.relocs.push(reloc),
+            Data(data) => data.relocs.push(reloc),
+            Bss(_) => panic!("relocation entry in bss section is not supported"),
         }
     }
 

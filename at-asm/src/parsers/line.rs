@@ -1,13 +1,6 @@
 use super::{
-    data::Data,
-    global_symbol::GlobalSymbol,
-    instruction::{AnyMov, AnyPush},
-    section::Section,
+    data::Data, global_symbol::GlobalSymbol, instruction::Instruction, section::Section,
     ParseError, ParseStr,
-};
-use at_x64::{
-    instruction::{Instruction, Ret, Syscall},
-    BytesAtMost,
 };
 
 pub enum Line {
@@ -16,7 +9,7 @@ pub enum Line {
     Symbol(String),
     GlobalSymbol(String),
     Data(Data),
-    Instruction(BytesAtMost<15>),
+    Instruction(Instruction),
 }
 
 impl ParseStr for Line {
@@ -62,15 +55,11 @@ impl ParseStr for Line {
         }
 
         // instruction
-        let bytes = match token {
-            "ret" => Ret::new().bytecode(),
-            "mov" => AnyMov::parse_str(s)?.bytecode(),
-            "push" => AnyPush::parse_str(s)?.bytecode(),
-            "syscall" => Syscall::new().bytecode(),
-            _ => return Err(ParseError::new(format!("error: unknown opcode {}", token))),
-        };
+        if let Some(instruction) = Instruction::try_parse_str(s)? {
+            return Ok(Line::Instruction(instruction));
+        }
 
-        Ok(Line::Instruction(bytes))
+        Err(ParseError::new("unrecognized line"))
     }
 
     fn try_parse_str(s: &str) -> Result<Option<Self>, ParseError> {

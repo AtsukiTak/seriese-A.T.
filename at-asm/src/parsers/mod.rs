@@ -1,4 +1,5 @@
 mod data;
+mod expr;
 mod global_symbol;
 mod instruction;
 mod line;
@@ -31,6 +32,10 @@ impl ParseError {
         ParseError {
             msg: String::from(msg),
         }
+    }
+
+    pub fn eol_expected() -> Self {
+        Self::new("end of line expected")
     }
 
     pub fn msg(&self) -> &str {

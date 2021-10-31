@@ -1,3 +1,6 @@
+;; TEST: Exit Code "0"
+;; TEST: STDOUT "Hello, World!!"
+
 section .text
 global _main
 _main:

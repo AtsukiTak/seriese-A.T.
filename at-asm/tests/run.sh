@@ -16,14 +16,33 @@ run() {
   input_file="tests/${testcase}.s"
   output_file="$output_dir/${testcase}.o"
   bin_file="$output_dir/${testcase}.bin"
-  expected_exit_code="$2"
-  expected_output="$3"
+
+  # 期待する終了コード
+  # "## TEST: Exit Code "42"" のように記述する
+  # デフォルト値は0
+  expected_exit_code=$(
+    grep -e "^;; TEST: Exit Code" $input_file |
+    sed -e 's/^;; TEST: Exit Code "\([0-9]*\)"/\1/'
+  )
+  if [ -z "$expected_exit_code" ]; then
+    expected_exit_code="0"
+  fi
+
+  # 期待する標準出力
+  # "## TEST: STDOUT "hogehoge"" のように記述する
+  # デフォルト値は""
+  expected_output=$(
+    grep -e "^;; TEST: STDOUT" $input_file |
+    sed -e 's/^;; TEST: STDOUT "\(.*\)"/\1/'
+  )
 
   echo "======================"
   echo "  Test ${testcase}"
 
+  # アセンブラの実行
   $asm -o $output_file $input_file
 
+  # アセンブラの実行結果のテスト
   asm_result="$?"
   if [ "$asm_result" -ne 0 ]; then
     echo "  Failed to assemble. Exit test."
@@ -56,7 +75,9 @@ run() {
 
 cargo build
 
-run "minimum" 24
-run "many_mov" 42
-run "simple_hello_world" 0 "Hello world!"
-run "reloc_hello_world" 0 "Hello, World!!"
+for file in $(find tests -name "*.s")
+do
+  # file は "tests/minimum.s" 的な値
+  # これを "minimum" に変換している
+  run $(echo $file | sed -e "s/^tests\/\(.*\).s/\1/")
+done

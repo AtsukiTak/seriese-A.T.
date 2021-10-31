@@ -1,3 +1,5 @@
+;; TEST: Exit Code "42"
+
 global _main
 _main:
   mov edi, 42
